@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layout}">
+<head>
+    <meta>
+    <title>Add item</title>
+</head>
+<body>
+<div class="container mt-4" layout:fragment="content">
+    <form th:action="@{ ${item != null} ? '/items/edit/' + ${item.id} : '/items/add' }" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text"
+                   class="form-control"
+                   id="name"
+                   name="name"
+                   th:value="${item?.name ?: ''}"
+                   placeholder="Enter item name">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text"
+                   class="form-control"
+                   id="description"
+                   name="description"
+                   th:value="${item?.description ?: ''}"
+                   placeholder="Enter item description">
+        </div>
+        <div class="mb-3">
+            <label for="isLost" class="form-label">Lost/Found</label>
+            <select id="isLost" name="isLost" class="form-select">
+                <option th:value="Lost" th:text="Lost"
+                        th:selected="${item?.isLost() == true}"></option>
+                <option th:value="Found" th:text="Found"
+                        th:selected="${item?.isLost() == false}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category</label>
+            <select id="categoryId" name="categoryId" class="form-select">
+                <option th:selected="${item != null && item.getCategory() != null && item.getCategory().getId() == cat.getId()}"
+                        th:each="cat : ${categories}"
+                        th:value="${cat.getId()}"
+                        th:text="${cat.getName()}">
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="file" class="form-label">Image</label>
+            <input multiple type="file" id="file" name="file" accept="image/png, image/jpeg" class="form-control"/>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text"
+                   class="form-control"
+                   id="location"
+                   name="location"
+                   th:value="${item?.loc ?: ''}"
+                   placeholder="Enter item location">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
