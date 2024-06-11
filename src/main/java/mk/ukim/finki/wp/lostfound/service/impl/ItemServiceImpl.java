@@ -1,19 +1,24 @@
 package mk.ukim.finki.wp.lostfound.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import mk.ukim.finki.wp.lostfound.model.Category;
 import mk.ukim.finki.wp.lostfound.model.Item;
-import mk.ukim.finki.wp.lostfound.model.Location;
-import mk.ukim.finki.wp.lostfound.model.enums.Status;
+import mk.ukim.finki.wp.lostfound.model.User;
 import mk.ukim.finki.wp.lostfound.model.exceptions.CategoryNotFoundException;
 import mk.ukim.finki.wp.lostfound.model.exceptions.ItemNotFoundException;
+import mk.ukim.finki.wp.lostfound.model.exceptions.UserNotFoundException;
 import mk.ukim.finki.wp.lostfound.repository.CategoryRepository;
 import mk.ukim.finki.wp.lostfound.repository.ItemRepository;
+import mk.ukim.finki.wp.lostfound.repository.UserRepository;
 import mk.ukim.finki.wp.lostfound.service.ItemService;
+import org.apache.commons.io.IOUtils;
+import org.springframework.http.HttpRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -23,14 +28,22 @@ import java.util.Optional;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
-    public ItemServiceImpl(ItemRepository itemRepository, CategoryRepository categoryRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, CategoryRepository categoryRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public List<Item> listItems(String name, String isLost, Long categoryId) {
+    public List<Item> listItems() {
+        return itemRepository.findAll();
+
+    }
+
+    @Override
+    public List<Item> filter(String name, String isLost, Long categoryId) {
         if(name == null && isLost == null && categoryId == null)
             return itemRepository.findAll();
         else if(name.isEmpty() && isLost.equals("All") && categoryId == -1)
@@ -61,22 +74,25 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+
     @Override
     public Optional<Item> findById(Long id) {
         return itemRepository.findById(id);
     }
 
     @Override
-    public Item create(String name, String description, String isLost, Long categoryId, MultipartFile file, String location) {
+    public Item create(HttpServletRequest request, String name, String description, String isLost, Long categoryId, MultipartFile file, String location) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
         boolean lost = Objects.equals(isLost, "Lost");
+        String username = request.getUserPrincipal().getName();
+        User user = userRepository.findById(username).orElseThrow(UserNotFoundException::new);
         Item item = null;
         try {
-            item = new Item(name, description, lost, category, "data:image/jpeg;base64,"+Base64.getEncoder().encodeToString(file.getBytes()), location);
+            byte[] imageBytes = IOUtils.toByteArray(new URL("https://clipground.com/images/no-image-png-5.jpg"));
+            item = new Item(name, description, lost, category,  !file.isEmpty() ? file.getBytes() : imageBytes, location, user);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ;
         return itemRepository.save(item);
     }
 
@@ -89,12 +105,14 @@ public class ItemServiceImpl implements ItemService {
         item.setDescription(description);
         item.setLost(lost);
         item.setCategory(category);
-//        try {
-//            item.setImage();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-        item.setLoc(location);
+        if(!file.isEmpty()) {
+            try {
+                item.setImage(file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        item.setLocation(location);
         return itemRepository.save(item);
     }
 

@@ -47,6 +47,7 @@
             </select>
         </div>
         <div class="mb-3">
+            <img th:if="${item!=null}" th:src="'data:image/jpeg;base64,' + ${image}" class="d-block w-25" alt="Card image cap">
             <label for="file" class="form-label">Image</label>
             <input multiple type="file" id="file" name="file" accept="image/png, image/jpeg" class="form-control"/>
         </div>
@@ -56,7 +57,7 @@
                    class="form-control"
                    id="location"
                    name="location"
-                   th:value="${item?.loc ?: ''}"
+                   th:value="${item?.getLocation() ?: ''}"
                    placeholder="Enter item location">
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>

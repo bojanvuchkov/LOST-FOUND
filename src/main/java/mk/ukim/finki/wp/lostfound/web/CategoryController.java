@@ -1,12 +1,7 @@
 package mk.ukim.finki.wp.lostfound.web;
 
 import mk.ukim.finki.wp.lostfound.model.Category;
-import mk.ukim.finki.wp.lostfound.model.Item;
-import mk.ukim.finki.wp.lostfound.model.Location;
-import mk.ukim.finki.wp.lostfound.model.exceptions.CategoryNotFoundException;
 import mk.ukim.finki.wp.lostfound.service.CategoryService;
-import mk.ukim.finki.wp.lostfound.service.ItemService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Mail</title>
+    <script>
+        function aa(){
+            return "5"
+        }
+    </script>
+</head>
+<body>
+<div class="mt-4" layout:fragment="content">
+    <form action="/users/send" th:method="post">
+        <label for="receiver" class="form-label">Send to: </label>
+        <input type="text" id="receiver" name="receiver" th:value="${receiver.getEmail()}" readonly="readonly" class="form-control">
+        <label for="subject" class="form-label">Subject: </label>
+        <input type="text" id="subject" name="subject" th:value="${item.getName()}" readonly="readonly" class="form-control">
+        <label>
+            <textarea name="message" class="form-control" style="width: 90rem"></textarea>
+        </label>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+</body>
+</html>

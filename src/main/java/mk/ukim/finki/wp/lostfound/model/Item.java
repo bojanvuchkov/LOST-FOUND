@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import mk.ukim.finki.wp.lostfound.model.enums.Status;
 
-import javax.faces.context.FacesContext;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -27,18 +26,16 @@ public class Item {
     private Category category;
     private LocalDateTime dateResolved;
     private boolean matchingFound;
-    private String image;
-    @Transient
-    private Location location;
-    private String loc;
-//    @ManyToOne
-//    private Location meetingLocation;
+    private byte[] image;
+    private String location;
     @Enumerated(EnumType.STRING)
     private Status status;
+    @ManyToOne
+    private User user;
 //    @ManyToOne
-//    private User user;
+//    private Location meetingLocation;
 
-    public Item(String name, String description, boolean isLost, Category category, String image, Location location) {
+    public Item(String name, String description, boolean isLost, Category category, byte[] image, String location, User user) {
         this.name = name;
         this.description = description;
         this.isLost = isLost;
@@ -49,26 +46,6 @@ public class Item {
         this.dateRegistered = LocalDateTime.now();
         this.matchingFound = false;
         this.dateResolved = null;
-        //this.meetingLocation = null;
-
+        this.user = user;
     }
-
-    public Item(String name, String description, boolean isLost, Category category, String image, String location) {
-        this.name = name;
-        this.description = description;
-        this.isLost = isLost;
-        this.category = category;
-        this.image = image;
-        this.loc = location;
-        this.status = Status.OPEN;
-        this.dateRegistered = LocalDateTime.now();
-        this.matchingFound = false;
-        this.dateResolved = null;
-        //this.meetingLocation = null;
-    }
-
-    public void setLost(boolean lost) {
-        isLost = lost;
-    }
-
 }
