@@ -2,20 +2,22 @@ package mk.ukim.finki.wp.lostfound.repository;
 
 import mk.ukim.finki.wp.lostfound.model.Category;
 import mk.ukim.finki.wp.lostfound.model.Item;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface ItemRepository extends JpaSpecificationRepository<Item, Long>{
-    List<Item> findByName(String name);
-    List<Item> findByCategory(Category category);
+    Page<Item> findByName(String name, Pageable pageable);
+    Page<Item> findByCategory(Category category, Pageable pageable);
     @Query("select i from Item i WHERE i.isLost = ?1")
-    List<Item> findLost(Boolean lost);
-    List<Item> findByNameAndCategory(String name, Category category);
+    Page<Item> findLost(Boolean lost, Pageable pageable);
+    Page<Item> findByNameAndCategory(String name, Category category, Pageable pageable);
     @Query("select i from Item i WHERE i.name = ?1 and i.isLost = ?2")
-    List<Item> findByNameAndByLost(String name, Boolean lost);
+    Page<Item> findByNameAndByLost(String name, Boolean lost, Pageable pageable);
     @Query("select i from Item i WHERE i.category = ?1 and i.isLost = ?2")
-    List<Item> findByCategoryAndByLost(Category category, Boolean lost);
+    Page<Item> findByCategoryAndByLost(Category category, Boolean lost, Pageable pageable);
     @Query("select i from Item i WHERE i.name=?1 and i.category = ?2 and i.isLost = ?3")
-    List<Item> findByNameAndByCategoryAndByLost(String name, Category category, Boolean lost);
+    Page<Item> findByNameAndByCategoryAndByLost(String name, Category category, Boolean lost, Pageable pageable);
 }

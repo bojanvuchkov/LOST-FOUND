@@ -26,7 +26,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @OneToMany(mappedBy = "receiver")
+    @OneToMany()
     private List<Email> receivedEmails;
 
     public User(String name, String email, UserRole role) {

@@ -28,8 +28,8 @@ public class AuthConfig {
                                 "/admin/course-preferences/add",
                                 "/admin/course-preferences/edit/**",
                                 "/admin/course-preferences/save",
-                                "/admin/course-preferences"
-//                                "/items",
+                                "/admin/course-preferences",
+                                "/items"
 //                                "/items/",
 //                                "/items/add",
 //                                "/items/edit/",
@@ -51,7 +51,8 @@ public class AuthConfig {
                         .requestMatchers("/active-subjects", "io.png", "/allocation/*").permitAll()
                                 .anyRequest().permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll);
+//                .logout(LogoutConfigurer::permitAll);
+        .logout((logout) -> logout.logoutSuccessUrl("/items"));
     }
 
 }

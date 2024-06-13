@@ -12,6 +12,8 @@ import mk.ukim.finki.wp.lostfound.repository.ItemRepository;
 import mk.ukim.finki.wp.lostfound.repository.UserRepository;
 import mk.ukim.finki.wp.lostfound.service.ItemService;
 import org.apache.commons.io.IOUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,40 +39,40 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> listItems() {
-        return itemRepository.findAll();
+    public Page<Item> listItems(Pageable pageable) {
+        return itemRepository.findAll(pageable);
 
     }
 
     @Override
-    public List<Item> filter(String name, String isLost, Long categoryId) {
+    public Page<Item> filter(String name, String isLost, Long categoryId, Pageable pageable) {
         if(name == null && isLost == null && categoryId == null)
-            return itemRepository.findAll();
+            return itemRepository.findAll(pageable);
         else if(name.isEmpty() && isLost.equals("All") && categoryId == -1)
-            return itemRepository.findAll();
+            return itemRepository.findAll(pageable);
         else if(!name.isEmpty() && !Objects.equals(isLost, "All") && categoryId != -1) {
             Category category = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
-            return itemRepository.findByNameAndByCategoryAndByLost(name, category, Objects.equals(isLost, "Lost"));
+            return itemRepository.findByNameAndByCategoryAndByLost(name, category, Objects.equals(isLost, "Lost"), pageable);
         }
         else if(!isLost.equals("All") && categoryId != -1){
             Category category = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
-            return itemRepository.findByCategoryAndByLost(category, Objects.equals(isLost, "Lost"));
+            return itemRepository.findByCategoryAndByLost(category, Objects.equals(isLost, "Lost"), pageable);
         }
         else if(!name.isEmpty() && categoryId != -1){
             Category category = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
-            return itemRepository.findByNameAndCategory(name, category);
+            return itemRepository.findByNameAndCategory(name, category, pageable);
         }
         else if(!name.isEmpty() && !isLost.equals("All")){
-            return itemRepository.findByNameAndByLost(name, Objects.equals(isLost, "Lost"));
+            return itemRepository.findByNameAndByLost(name, Objects.equals(isLost, "Lost"), pageable);
         }
         else if(!name.isEmpty())
-            return itemRepository.findByName(name);
+            return itemRepository.findByName(name, pageable);
         else if(!isLost.equals("All")) {
-            return itemRepository.findLost(Objects.equals(isLost, "Lost"));
+            return itemRepository.findLost(Objects.equals(isLost, "Lost"), pageable);
         }
         else {
             Category category = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
-            return itemRepository.findByCategory(category);
+            return itemRepository.findByCategory(category, pageable);
         }
     }
 

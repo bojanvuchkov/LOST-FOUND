@@ -3,15 +3,17 @@ package mk.ukim.finki.wp.lostfound.service;
 import jakarta.servlet.http.HttpServletRequest;
 import mk.ukim.finki.wp.lostfound.model.Item;
 import mk.ukim.finki.wp.lostfound.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ItemService {
-    List<Item> listItems();
+    Page<Item> listItems(Pageable pageable);
 
-    List<Item> filter(String name, String isLost, Long categoryId);
+    Page<Item> filter(String name, String isLost, Long categoryId, Pageable pageable);
 
     Optional<Item> findById(Long id);
 

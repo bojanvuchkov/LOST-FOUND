@@ -1,71 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout}">
 <head>
     <title>Items</title>
 </head>
 <body>
-<div class=" mt-4" layout:fragment="content">
-    <h1>Items</h1>
-    <a th:href="@{/items/add}" class="btn btn-dark">Add New Item</a>
-    <div class="row" >
+<div class=" mt-4 container" layout:fragment="content">
+    <a sec:authorize="isAuthenticated()" th:href="@{/items/add}" class="btn btn-dark form-control">Add New Item</a>
+    <div class="row">
         <form class="form-inline" action="/items/search" method="post">
-                <label for="name" class="form-label">Name</label>
-                <input type="text"
-                       id="name"
-                       name="name"
-                       class="form-control w-25"
-                       style="display: inline"
-                       placeholder="Enter item name">
-                <label for="isLost" class="form-label">Lost/Found</label>
-                <select id="isLost" name="isLost" class="form-control w-25"
-                        style="display: inline">
-                    <option th:value="All" th:text="All" selected></option>
-                    <option th:value="Lost" th:text="Lost"></option>
-                    <option th:value="Found" th:text="Found"></option>
-                </select>
-                <label for="categoryId" class="form-label">Category</label>
-                <select id="categoryId" name="categoryId" class="form-control w-25"
-                        style="display: inline">
-                    <option th:value="-1" th:text="All" selected></option>
-                    <option th:each="cat : ${categories}"
-                            th:value="${cat.getId()}"
-                            th:text="${cat.getName()}">
-                    </option>
-                </select>
+            <label for="name" class="form-label">Name</label>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   class="form-control w-25"
+                   style="display: inline"
+                   placeholder="Enter item name">
+            <label for="isLost" class="form-label">Lost/Found</label>
+            <select id="isLost" name="isLost" class="form-control w-25"
+                    style="display: inline">
+                <option th:value="All" th:text="All" selected></option>
+                <option th:value="Lost" th:text="Lost"></option>
+                <option th:value="Found" th:text="Found"></option>
+            </select>
+            <label for="categoryId" class="form-label">Category</label>
+            <select id="categoryId" name="categoryId" class="form-control w-25"
+                    style="display: inline">
+                <option th:value="-1" th:text="All" selected></option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.getId()}"
+                        th:text="${cat.getName()}">
+                </option>
+            </select>
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
     </div>
     <div class="row">
-        <div th:each="item : ${items}" class="card" style="width: 18rem;">
-                <img class="card-img-top" th:src="'data:image/jpeg;base64,' + ${images.get(item)}" alt="Card image cap">
-                <div class="card-body">
-                    <h5 th:text="${item.getName()}" class="card-title"></h5>
-                    <p th:text="${item.getDescription()}" class="card-text"></p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Category:</strong> <span th:text="${item.category.name}"></span></li>
-                        <li class="list-group-item"><strong>Date Registered:</strong> <span th:text="${dateTimes.get(item)}"></span></li>
-                        <li class="list-group-item"><strong>Location:</strong> <span th:text="${item.getLocation()}"></span></li>
-                        <li class="list-group-item"><strong>Status:</strong> <span th:text="${item.isLost ? 'Lost' : 'Found'}"></span></li>
-                        <li class="list-group-item"><strong>Published by:</strong> <span th:text="${item.getUser().getName()}"></span></li>
-                    </ul>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a th:href="@{'/items/edit/{id}'(id=${item.getId()})}" class="btn btn-info">Edit</a>
-<!--                        <form th:action="@{'/items/delete/{id}' (id=${item.getId()})}" method="post">-->
-<!--                            <input type="submit" class="btn btn-danger" value="Delete">-->
-<!--                        </form>-->
-                        <form th:action="@{'/users/contact/{id}'(id=${item.getUser().getId()})}">
-                            <input type="hidden" th:value="${item.getId()}" name="itemId">
-                            <button type="submit" class="btn btn-success">Contact</button>
-                        </form>
-                        <a th:href="@{'/items/delete/{id}'(id=${item.getId()})}" class="btn btn-danger">Delete</a>
+        <div th:each="item : ${items}" class="card mb-3" style="max-width: 100%;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img th:src="'data:image/jpeg;base64,' + ${images.get(item)}" class="img-fluid rounded-start w-100"
+                         style="" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${item.getName()}"></h5>
+                        <p class="card-text" th:text="${item.getDescription()}"><strong>Description:</strong></p>
+                        <p class="card-text"><strong>Category:</strong><span th:text="${item.category.name}"></span></p>
+                        <p class="card-text"><strong>Location:</strong><span th:text="${item.getLocation()}"></span></p>
+                        <p class="card-text"><strong>Status:</strong><span
+                                th:text="${item.isLost ? 'Lost' : 'Found'}"></span></p>
+                        <p th:if="${#authentication.name.equals(item.user.id)}" class="card-text"><strong>Published by:</strong><span
+                                th:text="${item.getUser().getName()}"></span></p>
+                        <strong th:if="${!#authentication.name.equals(item.user.id)}">Published by:</strong><a th:if="${!#authentication.name.equals(item.user.id)}" th:href="@{'/users/contact/{id}'(id=${item.getUser().getId()})}" th:text=" ${item.user.getName()}"></a>
+                        <p class="card-text"><small class="text-body-secondary"
+                                                    th:text="${dateTimes.get(item)}"></small></p>
+                        <div class="d-flex" sec:authorize="isAuthenticated()">
+                        <a th:href="@{'/items/edit/{id}'(id=${item.getId()})}" th:if="${#authentication.name.equals(item.user.id)}" class="btn btn-info">Edit</a>
 
+                        <form th:action="@{'/items/delete/{id}' (id=${item.getId()})}" method="post" th:if="${#authentication.name.equals(item.user.id)}">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                        </form>
+
+                        </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
-
+    <div th:replace="fragments/paging :: pageSection(${items})"></div>
 </div>
+
 </body>
 </html>

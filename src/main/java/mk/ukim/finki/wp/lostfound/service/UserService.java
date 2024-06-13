@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface UserService {
     Optional<User> findById(String id);
+    void deleteMessage(String userId, Long messageId);
     Optional<User> findByEmail(String email);
     void sendMail(HttpServletRequest request, String receiverMail, String subject, String message);
 }

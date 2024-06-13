@@ -2,7 +2,7 @@ package mk.ukim.finki.wp.lostfound.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import mk.ukim.finki.wp.lostfound.model.Category;
-import mk.ukim.finki.wp.lostfound.model.Item;
+import mk.ukim.finki.wp.lostfound.model.Email;
 import mk.ukim.finki.wp.lostfound.model.User;
 import mk.ukim.finki.wp.lostfound.model.exceptions.ItemNotFoundException;
 import mk.ukim.finki.wp.lostfound.model.exceptions.UserNotFoundException;
@@ -13,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -28,17 +31,37 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public String getCategoryPage(@PathVariable String id) {
-        //TO DO
+    public String getDetails(@PathVariable String id, Model model) {
+        User loggedInUser = userService.findById(id).orElseThrow(UserNotFoundException::new);
+        model.addAttribute("loggedInUser", loggedInUser);
+        HashMap<Email, String> dateTimes = new HashMap<>();
+        loggedInUser.getReceivedEmails().forEach(email -> {
+            dateTimes.put(email, email.getDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        });
+        model.addAttribute("dateTimes",dateTimes);
         return "users/details";
     }
 
+    @PostMapping ("/{id}/deleteMessage/{messageId}")
+    public String deleteMessage(HttpServletRequest request,
+                                @PathVariable String id,
+                                @PathVariable Long messageId,
+                                Model model) {
+        if(request.getUserPrincipal().getName().equals(id))
+            this.userService.deleteMessage(id, messageId);
+//        User loggedInUser = userService.findById(userId).orElseThrow(UserNotFoundException::new);
+//        model.addAttribute("loggedInUser", loggedInUser);
+        return "redirect:/users/{id}";
+    }
+
     @GetMapping("/contact/{id}")
-    public String sendMailFrom(@PathVariable String id, @RequestParam Long itemId, Model model) {
+    public String sendMailFrom(HttpServletRequest request,
+                               @PathVariable String id,
+                               Model model) {
         User receiver = userService.findById(id).orElseThrow(UserNotFoundException::new);
-        Item item = itemService.findById(itemId).orElseThrow(ItemNotFoundException::new);
+        String username = request.getUserPrincipal().getName();
+        model.addAttribute("username", username);
         model.addAttribute("receiver", receiver);
-        model.addAttribute("item",item);
         return "users/mail";
     }
 
@@ -50,4 +73,10 @@ public class UserController {
         userService.sendMail(request, receiver, subject, message);
         return "redirect:/items";
     }
+//    @GetMapping("/logout")
+//    public String logout(HttpServletRequest request) {
+//        request.getSession().invalidate();
+//        return "redirect:/items";
+//    }
+
 }
